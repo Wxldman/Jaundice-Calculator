@@ -1,0 +1,185 @@
+/* General styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f8fb;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* Responsive container */
+.container {
+    max-width: 90%;
+    margin: 50px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Header styling */
+.header {
+    background-color: #0066cc;
+    color: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* Form and inputs */
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+label {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #333;
+    display: block;
+    margin-bottom: 8px;
+}
+
+input, select {
+    width: 100%;
+    padding: 15px;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    margin-top: 8px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+    border-color: #0066cc;
+    box-shadow: 0 0 5px rgba(0, 102, 204, 0.5);
+}
+
+/* Time picker styling */
+.time-picker {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.time-picker input, .time-picker select {
+    width: 32%;
+    margin: 0 5px;
+    font-size: 1rem;
+}
+
+input::placeholder {
+    text-align: center;
+}
+
+/* Button */
+.btn-submit, .btn-recalculate {
+    width: 100%;
+    padding: 15px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 10px;
+    border: none;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+}
+
+.btn-recalculate {
+    background-color: #007bff;
+}
+
+.btn-submit:hover {
+    background-color: #218838;
+}
+
+.btn-recalculate:hover {
+    background-color: #0056b3;
+}
+
+/* Results section */
+.result {
+    padding: 20px;
+    margin-top: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.5s ease;
+}
+
+/* Alert if bilirubin is above the threshold */
+.result.alert {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left: 8px solid #f5c6cb;
+}
+
+/* Success message */
+.result.success {
+    background-color: #d4edda;
+    color: #155724;
+    border-left: 8px solid #c3e6cb;
+}
+
+/* Reference Sheet */
+#referenceSheet {
+    margin-top: 30px;
+}
+
+#referenceSheet table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#referenceSheet th, #referenceSheet td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+#referenceSheet th {
+    background-color: #0066cc;
+    color: white;
+    font-weight: bold;
+}
+
+/* Footer styling */
+.footer {
+    text-align: center;
+    background-color: #0066cc;
+    color: white;
+    padding: 10px;
+    font-size: 1rem;
+    border-top: 2px solid #004c99;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Media queries for responsiveness */
+@media screen and (max-width: 768px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    input, select, .btn-submit, .btn-recalculate {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+
+    .time-picker input, .time-picker select {
+        font-size: 0.9rem;
+    }
+}

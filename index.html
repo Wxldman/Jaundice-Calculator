@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jaundice Treatment Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Jaundice Treatment Calculator</h1>
+        </header>
+
+        <form id="jaundice-form">
+            <!-- Birthweight Input -->
+            <div class="form-group">
+                <label for="birthweight">Birthweight (kg):</label>
+                <select id="birthweight" required>
+                    <option value="">Select Birthweight</option>
+                    <option value=">2.5">> 2.5 kg</option>
+                    <option value="1.5-2.5">1.5 - 2.5 kg</option>
+                    <option value="1.0-1.5">1.0 - 1.5 kg</option>
+                    <option value="<1.0">&lt; 1.0 kg</option>
+                </select>
+            </div>
+
+            <!-- Date and Time of Birth -->
+            <div class="form-group">
+                <label for="dob">Date and Time of Birth (12-hour format):</label>
+                <input type="date" id="dobDate" required>
+                <div class="time-picker">
+                    <input type="number" id="dobHour" min="1" max="12" required placeholder="Hour">
+                    <input type="number" id="dobMinute" min="0" max="59" required placeholder="Minute">
+                    <select id="dobAMPM">
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Date and Time of Bilirubin Sample -->
+            <div class="form-group">
+                <label for="sampleTime">Date and Time of Bilirubin Sample (12-hour format):</label>
+                <input type="date" id="sampleDate" required>
+                <div class="time-picker">
+                    <input type="number" id="sampleHour" min="1" max="12" required placeholder="Hour">
+                    <input type="number" id="sampleMinute" min="0" max="59" required placeholder="Minute">
+                    <select id="sampleAMPM">
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Bilirubin Level Input -->
+            <div class="form-group">
+                <label for="bilirubin">Bilirubin Level (mmol/L):</label>
+                <input type="number" id="bilirubin" required step="0.01" min="0">
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-submit">Calculate</button>
+        </form>
+
+        <!-- Results Section -->
+        <div id="ageResult" style="display: none;">
+            <h2>Neonate's Age</h2>
+            <div id="ageDisplay"></div>
+        </div>
+
+        <div id="result" class="result" style="display: none;"></div>
+
+        <!-- Reference Sheet Section -->
+        <div id="referenceSheet" style="display: none;"></div>
+
+        <!-- Recalculate Button -->
+        <button id="recalculate-btn" class="btn-recalculate" style="display: none;">Redo</button>
+    </div>
+
+    <footer class="footer">
+        <p>Developed by Dr. J Levene</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
