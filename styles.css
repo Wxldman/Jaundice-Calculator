@@ -1,185 +1,321 @@
-/* General styling */
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f8fb;
-    margin: 0;
-    padding: 0;
-    color: #333;
+/* ================================
+   Design tokens (light theme)
+   ================================ */
+:root{
+  --font-sans: 'Arial', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, sans-serif;
+
+  --bg: #f4f8fb;
+  --card: #ffffff;
+  --text: #1f2937;        /* slate-800 */
+  --muted: #6b7280;       /* slate-500 */
+
+  --primary: #0066cc;
+  --primary-600: #0060bf;
+  --primary-700: #0056b3;
+
+  --success-bg: #d4edda;
+  --success-text: #155724;
+  --success-accent: #c3e6cb;
+
+  --warning-bg: #fff3cd;
+  --warning-text: #856404;
+  --warning-accent: #ffeeba;
+
+  --danger-bg: #f8d7da;
+  --danger-text: #721c24;
+  --danger-accent: #f5c6cb;
+
+  --radius-lg: 20px;
+  --radius-md: 12px;
+  --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.10);
+  --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.10);
+  --ring: 0 0 0 3px rgba(0, 102, 204, 0.25);
 }
 
-/* Responsive container */
-.container {
-    max-width: 90%;
-    margin: 50px auto;
-    padding: 30px;
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    text-align: center;
+/* Dark mode (auto, no HTML change required) */
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg: #0b1220;
+    --card: #111827;         /* slate-900 */
+    --text: #e5e7eb;         /* slate-200 */
+    --muted: #9ca3af;
+
+    --success-bg: #1b2a22;
+    --success-text: #b6f0c2;
+    --success-accent: #285a3f;
+
+    --warning-bg: #2b2414;
+    --warning-text: #ffe08a;
+    --warning-accent: #4b3b0e;
+
+    --danger-bg: #2a1517;
+    --danger-text: #ffb3b9;
+    --danger-accent: #5a2125;
+
+    --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.30);
+    --ring: 0 0 0 3px rgba(0, 102, 204, 0.45);
+  }
 }
 
-/* Header styling */
-.header {
-    background-color: #0066cc;
-    color: #fff;
-    padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 20px;
+/* Reduced motion respect */
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
 }
 
-h1 {
-    font-size: 2rem;
-    font-weight: bold;
+/* ================================
+   Base
+   ================================ */
+*{ box-sizing: border-box; }
+html, body{ height: 100%; }
+body{
+  font-family: var(--font-sans);
+  background-color: var(--bg);
+  margin: 0;
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* Form and inputs */
-.form-group {
-    margin-bottom: 20px;
-    text-align: left;
+/* ================================
+   Container & Header
+   ================================ */
+.container{
+  width: min(90%, 900px);
+  margin: 48px auto;
+  padding: 28px;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
 }
 
-label {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #333;
-    display: block;
-    margin-bottom: 8px;
+.header{
+  background: linear-gradient(135deg, var(--primary), #0091ff);
+  color: #fff;
+  padding: 22px;
+  border-radius: 16px;
+  margin-bottom: 20px;
 }
 
-input, select {
-    width: 100%;
-    padding: 15px;
-    font-size: 1rem;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    margin-top: 8px;
-    box-sizing: border-box;
-    transition: all 0.3s ease;
+h1{
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.2px;
 }
 
-input:focus, select:focus {
-    border-color: #0066cc;
-    box-shadow: 0 0 5px rgba(0, 102, 204, 0.5);
+/* ================================
+   Form
+   ================================ */
+.form-group{
+  margin-bottom: 18px;
+  text-align: left;
 }
 
-/* Time picker styling */
-.time-picker {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 10px;
+label{
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  display: block;
+  margin-bottom: 8px;
 }
 
-.time-picker input, .time-picker select {
-    width: 32%;
-    margin: 0 5px;
-    font-size: 1rem;
+input, select{
+  width: 100%;
+  padding: 14px 12px;
+  font-size: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid #d1d5db; /* slate-300 */
+  background: var(--card);
+  color: var(--text);
+  transition: border-color .2s ease, box-shadow .2s ease, transform .06s ease;
 }
 
-input::placeholder {
-    text-align: center;
+input::placeholder{ color: #9ca3af; text-align: left; }
+
+input:focus, select:focus{
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: var(--ring);
 }
 
-/* Button */
-.btn-submit, .btn-recalculate {
-    width: 100%;
-    padding: 15px;
-    background-color: #28a745;
-    color: white;
-    border-radius: 10px;
-    border: none;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 20px;
+input:invalid{
+  border-color: #ef4444; /* red-500 */
 }
 
-.btn-recalculate {
-    background-color: #007bff;
+/* Time picker */
+.time-picker{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
 }
 
-.btn-submit:hover {
-    background-color: #218838;
+.time-picker input,
+.time-picker select{
+  width: 100%;
+  margin: 0;
+  font-size: 1rem;
 }
 
-.btn-recalculate:hover {
-    background-color: #0056b3;
+/* ================================
+   Buttons
+   ================================ */
+.btn-submit, .btn-recalculate{
+  width: 100%;
+  padding: 14px 16px;
+  background-color: #28a745;
+  color: #fff;
+  border-radius: var(--radius-md);
+  border: none;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .06s ease, background-color .2s ease, box-shadow .2s ease;
+  margin-top: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
 }
 
-/* Results section */
-.result {
-    padding: 20px;
-    margin-top: 25px;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    font-size: 1.1rem;
-    font-weight: 600;
-    transition: all 0.5s ease;
+.btn-submit:hover{ background-color: #218838; }
+.btn-submit:active,
+.btn-recalculate:active{ transform: translateY(1px); }
+
+.btn-recalculate{
+  background-color: var(--primary);
+}
+.btn-recalculate:hover{ background-color: var(--primary-700); }
+
+.btn-submit:focus-visible,
+.btn-recalculate:focus-visible{
+  outline: none;
+  box-shadow: var(--ring);
 }
 
-/* Alert if bilirubin is above the threshold */
-.result.alert {
-    background-color: #f8d7da;
-    color: #721c24;
-    border-left: 8px solid #f5c6cb;
+button:disabled,
+.btn-submit:disabled,
+.btn-recalculate:disabled{
+  opacity: .6;
+  cursor: not-allowed;
 }
 
-/* Success message */
-.result.success {
-    background-color: #d4edda;
-    color: #155724;
-    border-left: 8px solid #c3e6cb;
+/* ================================
+   Results
+   ================================ */
+.result{
+  padding: 20px;
+  margin-top: 24px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  font-size: 1.05rem;
+  font-weight: 700;
+  transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease;
+  animation: fadeSlideIn .35s ease both;
 }
 
-/* Reference Sheet */
-#referenceSheet {
-    margin-top: 30px;
+/* States */
+.result.alert{
+  background-color: var(--danger-bg);
+  color: var(--danger-text);
+  border-left: 8px solid var(--danger-accent);
 }
 
-#referenceSheet table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
+.result.success{
+  background-color: var(--success-bg);
+  color: var(--success-text);
+  border-left: 8px solid var(--success-accent);
 }
 
-#referenceSheet th, #referenceSheet td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
+/* NEW: warning state used by your JS (“result warning”) */
+.result.warning{
+  background-color: var(--warning-bg);
+  color: var(--warning-text);
+  border-left: 8px solid var(--warning-accent);
 }
 
-#referenceSheet th {
-    background-color: #0066cc;
-    color: white;
-    font-weight: bold;
+/* Subtle lift on hover for readability */
+.result:hover{ transform: translateY(-1px); }
+
+/* Entry animation */
+@keyframes fadeSlideIn{
+  from{ opacity: 0; transform: translateY(6px); }
+  to{ opacity: 1; transform: translateY(0); }
 }
 
-/* Footer styling */
-.footer {
-    text-align: center;
-    background-color: #0066cc;
-    color: white;
-    padding: 10px;
-    font-size: 1rem;
-    border-top: 2px solid #004c99;
-    position: relative;
-    bottom: 0;
-    width: 100%;
+/* ================================
+   Reference Sheet
+   ================================ */
+#referenceSheet{
+  margin-top: 28px;
+  text-align: left;
 }
 
-/* Media queries for responsiveness */
-@media screen and (max-width: 768px) {
-    h1 {
-        font-size: 1.5rem;
-    }
+#referenceSheet h3{
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
 
-    input, select, .btn-submit, .btn-recalculate {
-        font-size: 0.9rem;
-        padding: 10px;
-    }
+#referenceSheet table{
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: var(--card);
+  border-radius: 12px;
+  overflow: hidden; /* rounds the table corners */
+}
 
-    .time-picker input, .time-picker select {
-        font-size: 0.9rem;
-    }
+#referenceSheet th, #referenceSheet td{
+  border: 1px solid #e5e7eb; /* slate-200 */
+  padding: 12px 10px;
+  text-align: center;
+  font-size: 0.98rem;
+}
+
+#referenceSheet th{
+  background-color: var(--primary);
+  color: #fff;
+  font-weight: 800;
+}
+
+/* zebra rows for readability */
+#referenceSheet tr:nth-child(even) td{
+  background: rgba(0,0,0,.02);
+}
+
+/* ================================
+   Footer
+   ================================ */
+.footer{
+  text-align: center;
+  background-color: var(--primary);
+  color: white;
+  padding: 12px;
+  font-size: 1rem;
+  border-top: 2px solid #004c99;
+  position: relative;
+  inset: auto;
+  width: 100%;
+  border-bottom-left-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+}
+
+/* ================================
+   Responsiveness
+   ================================ */
+@media (max-width: 768px){
+  h1{ font-size: 1.6rem; }
+  .container{ padding: 22px; margin: 32px auto; }
+  input, select, .btn-submit, .btn-recalculate{ font-size: 0.95rem; padding: 12px; }
+  .time-picker input, .time-picker select{ font-size: 0.95rem; }
+}
+
+/* ================================
+   Print (one-page clinical summary)
+   ================================ */
+@media print{
+  body{ background: #fff; }
+  .container{ box-shadow: none; margin: 0; width: 100%; }
+  .btn-submit, .btn-recalculate, .footer{ display: none !important; }
 }
