@@ -126,11 +126,25 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (bilirubin >= exchangeThresholdLower && bilirubin <= exchangeThresholdUpper) {
             resultDiv.className = "result alert";
             resultDiv.innerHTML = `<strong>Exchange Transfusion:</strong> Bilirubin (${bilirubin} mmol/L) is within the exchange transfusion range. Immediate intervention needed.`;
-        } else if (bilirubin >= phototherapyRange[0] && bilirubin <= phototherapyRange[1]) {
-            const midPoint = (phototherapyRange[0] + phototherapyRange[1]) / 2;
-            const phototherapyType = bilirubin <= midPoint ? "Single Phototherapy" : "Double Phototherapy";
-            resultDiv.className = "result alert";
-            resultDiv.innerHTML = `<strong>Phototherapy:</strong> Bilirubin (${bilirubin} mmol/L) is in phototherapy range. Recommended action: ${phototherapyType}.`;
+        } else if (bilirubin >= phototherapyRange[0] && bilirubin < exchangeThresholdLower) {
+    // Use the full phototherapy band from lower bound up to (but not including) the exchange threshold.
+    const photoUpperEffective = exchangeThresholdLower; // exclusive upper
+    const midPoint = (phototherapyRange[0] + photoUpperEffective) / 2;
+
+    const isLowerBand = bilirubin < midPoint;
+    const phototherapyType = isLowerBand ? "Single Phototherapy" : "Double Phototherapy";
+
+    // IVF maintenance prompt:
+    // - Lower phototherapy band  -> 30% of required IVF maintenance
+    // - Upper phototherapy band  -> 60% of required IVF maintenance
+    const ivfPercent = isLowerBand ? 30 : 60;
+
+    resultDiv.className = "result alert";
+    resultDiv.innerHTML =
+      `<strong>Phototherapy:</strong> Bilirubin (${bilirubin} mmol/L) is in phototherapy range. ` +
+      `Recommended action: ${phototherapyType}.<br>` +
+      `<em>IVF Guidance:</em> Administer ${ivfPercent}% of the required maintenance fluids.`;
+}
         } else if (bilirubin >= repeatSerumBilirubinThreshold && bilirubin < phototherapyRange[0]) {
             resultDiv.className = "result warning";
             resultDiv.innerHTML = `<strong>Repeat Serum Bilirubin:</strong> Bilirubin (${bilirubin} mmol/L) is within the repeat serum bilirubin range. Please repeat serum bilirubin measurement.`;
@@ -155,7 +169,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </tr>
                 <tr>
                     <td>${repeatSerumBilirubinThreshold} mmol/L</td>
-                    <td>${phototherapyRange[0]} - ${phototherapyRange[1]} mmol/L</td>
+                    <td>${phototherapyRange[0]} - &lt; ${exchangeThresholdLower} mmol/L</td>
                     <td>${exchangeThresholdLower} - ${exchangeThresholdUpper} mmol/L</td>
                 </tr>
             </table>
@@ -170,3 +184,4 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("recalculate-btn").style.display = "none";
     });
 });
+
