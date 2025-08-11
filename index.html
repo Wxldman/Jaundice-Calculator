@@ -18,7 +18,7 @@
       <h1>Jaundice Treatment Calculator</h1>
     </header>
 
-    <form id="jaundice-form">
+    <form id="jaundice-form" onsubmit="return false;" novalidate>
       <!-- Birthweight -->
       <div class="form-group">
         <label for="birthweight">Birthweight (kg):</label>
@@ -88,12 +88,14 @@
     <p>Developed by Dr. J Levene</p>
   </footer>
 
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
   <script>
     // Ensure the Redo button appears after any calculation
-    document.getElementById('jaundice-form').addEventListener('submit', function () {
+    document.getElementById('jaundice-form').addEventListener('submit', function (e) {
+  e.preventDefault();
       document.getElementById('recalculate-btn').style.display = 'block';
     });
   </script>
 </body>
 </html>
+
