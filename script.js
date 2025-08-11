@@ -144,7 +144,6 @@ document.addEventListener("DOMContentLoaded", function () {
       `<strong>Phototherapy:</strong> Bilirubin (${bilirubin} mmol/L) is in phototherapy range. ` +
       `Recommended action: ${phototherapyType}.<br>` +
       `<em>IVF Guidance:</em> Administer ${ivfPercent}% of the required maintenance fluids.`;
-}
         } else if (bilirubin >= repeatSerumBilirubinThreshold && bilirubin < phototherapyRange[0]) {
             resultDiv.className = "result warning";
             resultDiv.innerHTML = `<strong>Repeat Serum Bilirubin:</strong> Bilirubin (${bilirubin} mmol/L) is within the repeat serum bilirubin range. Please repeat serum bilirubin measurement.`;
@@ -184,4 +183,5 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("recalculate-btn").style.display = "none";
     });
 });
+
 
