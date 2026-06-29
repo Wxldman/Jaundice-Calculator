@@ -5,23 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Jaundice Treatment Calculator</title>
 
-  <!-- Inter font for the sleek hospital UI -->
+  <!-- Inter font for sleek hospital UI -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" 
+    rel="stylesheet"
+  >
 
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
-  <div class="container">
+  <main class="container">
     <header class="header">
       <h1>Jaundice Treatment Calculator</h1>
+      <p class="subtitle">Neonatal bilirubin treatment guidance by birthweight and age</p>
     </header>
 
     <form id="jaundice-form">
       <!-- Birthweight -->
       <div class="form-group">
-        <label for="birthweight">Birthweight (kg):</label>
+        <label for="birthweight">Birthweight:</label>
         <select id="birthweight" required>
           <option value="">Select Birthweight</option>
           <option value=">2.5">&gt; 2.5 kg</option>
@@ -33,12 +38,31 @@
 
       <!-- Date and Time of Birth -->
       <div class="form-group">
-        <label for="dobDate">Date and Time of Birth (12-hour format):</label>
+        <label for="dobDate">Date and Time of Birth:</label>
         <input type="date" id="dobDate" required />
+
         <div class="time-picker">
-          <input type="number" id="dobHour" min="1" max="12" required placeholder="Hour" inputmode="numeric" />
-          <input type="number" id="dobMinute" min="0" max="59" required placeholder="Minute" inputmode="numeric" />
-          <select id="dobAMPM" aria-label="AM/PM">
+          <input 
+            type="number" 
+            id="dobHour" 
+            min="1" 
+            max="12" 
+            required 
+            placeholder="Hour" 
+            inputmode="numeric" 
+          />
+
+          <input 
+            type="number" 
+            id="dobMinute" 
+            min="0" 
+            max="59" 
+            required 
+            placeholder="Minute" 
+            inputmode="numeric" 
+          />
+
+          <select id="dobAMPM" aria-label="Birth time AM or PM" required>
             <option value="AM">AM</option>
             <option value="PM">PM</option>
           </select>
@@ -47,12 +71,31 @@
 
       <!-- Date and Time of Bilirubin Sample -->
       <div class="form-group">
-        <label for="sampleDate">Date and Time of Bilirubin Sample (12-hour format):</label>
+        <label for="sampleDate">Date and Time of Bilirubin Sample:</label>
         <input type="date" id="sampleDate" required />
+
         <div class="time-picker">
-          <input type="number" id="sampleHour" min="1" max="12" required placeholder="Hour" inputmode="numeric" />
-          <input type="number" id="sampleMinute" min="0" max="59" required placeholder="Minute" inputmode="numeric" />
-          <select id="sampleAMPM" aria-label="AM/PM">
+          <input 
+            type="number" 
+            id="sampleHour" 
+            min="1" 
+            max="12" 
+            required 
+            placeholder="Hour" 
+            inputmode="numeric" 
+          />
+
+          <input 
+            type="number" 
+            id="sampleMinute" 
+            min="0" 
+            max="59" 
+            required 
+            placeholder="Minute" 
+            inputmode="numeric" 
+          />
+
+          <select id="sampleAMPM" aria-label="Sample time AM or PM" required>
             <option value="AM">AM</option>
             <option value="PM">PM</option>
           </select>
@@ -61,42 +104,66 @@
 
       <!-- Bilirubin Level -->
       <div class="form-group">
-        <label for="bilirubin">Bilirubin Level (mmol/L):</label>
-        <input type="number" id="bilirubin" required step="0.01" min="0" inputmode="decimal" />
+        <label for="bilirubin">Bilirubin Level (µmol/L):</label>
+        <input 
+          type="number" 
+          id="bilirubin" 
+          required 
+          step="0.01" 
+          min="0" 
+          inputmode="decimal" 
+          placeholder="Enter serum bilirubin"
+        />
       </div>
 
       <button type="submit" class="btn-submit">Calculate</button>
     </form>
 
-    <!-- Age -->
-    <div id="ageResult" style="display:none;">
+    <!-- Neonate Age Result -->
+    <section id="ageResult" style="display:none;">
       <h2>Neonate's Age</h2>
       <div id="ageDisplay" aria-live="polite"></div>
-    </div>
+    </section>
 
-    <!-- Result card (JS fills + may add .badge-group) -->
-    <div id="result" class="result" style="display:none;" aria-live="polite"></div>
+    <!-- Main Result -->
+    <section 
+      id="result" 
+      class="result" 
+      style="display:none;" 
+      aria-live="polite"
+    ></section>
 
     <!-- Reference Sheet -->
-    <div id="referenceSheet" style="display:none;"></div>
+    <section 
+      id="referenceSheet" 
+      style="display:none;"
+      aria-live="polite"
+    ></section>
+
+    <!-- Clinical Safety Note -->
+    <section class="clinical-note">
+      <p>
+        This calculator is based on the local neonatal jaundice reference chart and is intended to support, not replace, clinical judgement.
+        Consult senior/neonatology urgently for jaundice in the first 24 hours, suspected haemolysis, sepsis, prematurity, acidosis,
+        neurological signs, rapidly rising bilirubin, or exchange-level bilirubin.
+      </p>
+    </section>
 
     <!-- Recalculate -->
-    <button id="recalculate-btn" class="btn-recalculate" style="display:none;">Redo</button>
-  </div>
+    <button 
+      id="recalculate-btn" 
+      class="btn-recalculate" 
+      style="display:none;"
+      type="button"
+    >
+      Redo
+    </button>
+  </main>
 
   <footer class="footer">
-    <p>Developed by Dr. J Levene</p>
+    <p>Developed by Dr. Jermaine Levene| Updated June 2026 </p>
   </footer>
 
   <script src="script.js" defer></script>
-  <script>
-    // Ensure the Redo button appears after any calculation
-    document.getElementById('jaundice-form').addEventListener('submit', function (e) {
-  e.preventDefault();
-      document.getElementById('recalculate-btn').style.display = 'block';
-    });
-  </script>
 </body>
 </html>
-
-
