@@ -1,187 +1,433 @@
 document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("jaundice-form").addEventListener("submit", function (e) {
-        e.preventDefault();
+  const form = document.getElementById("jaundice-form");
+  const resultDiv = document.getElementById("result");
+  const ageResultDiv = document.getElementById("ageResult");
+  const ageDisplayDiv = document.getElementById("ageDisplay");
+  const referenceSheetDiv = document.getElementById("referenceSheet");
+  const recalculateBtn = document.getElementById("recalculate-btn");
 
-        const birthweight = document.getElementById("birthweight").value;
-        const bilirubin = parseFloat(document.getElementById("bilirubin").value);
+  const UNIT = "µmol/L";
 
-        if (isNaN(bilirubin)) {
-            alert("Please enter a valid bilirubin level.");
-            return;
-        }
+  /*
+    Neonatal jaundice treatment thresholds based on the uploaded local chart.
 
-        const dobDate = new Date(document.getElementById("dobDate").value);
-        let dobHour = parseInt(document.getElementById("dobHour").value);
-        const dobMinute = parseInt(document.getElementById("dobMinute").value);
-        const dobAMPM = document.getElementById("dobAMPM").value;
+    A = Repeat serum bilirubin in 6–8 hours
+    B = Phototherapy range
+    C = Exchange transfusion threshold
 
-        if (dobAMPM === "PM" && dobHour !== 12) dobHour += 12;
-        if (dobAMPM === "AM" && dobHour === 12) dobHour = 0;
-        dobDate.setHours(dobHour, dobMinute, 0, 0);
+    Note: The printed chart says mmol/L, but the values clinically correspond to µmol/L.
+  */
 
-        const sampleDate = new Date(document.getElementById("sampleDate").value);
-        let sampleHour = parseInt(document.getElementById("sampleHour").value);
-        const sampleMinute = parseInt(document.getElementById("sampleMinute").value);
-        const sampleAMPM = document.getElementById("sampleAMPM").value;
+  const jaundiceTable = {
+    ">2.5": [
+      {
+        ageBand: "<36 h",
+        repeat: 150,
+        photoLow: 180,
+        photoHigh: 280,
+        exchange: 340
+      },
+      {
+        ageBand: "36–72 h",
+        repeat: 210,
+        photoLow: 240,
+        photoHigh: 300,
+        exchange: 340
+      },
+      {
+        ageBand: "72–120 h",
+        repeat: 275,
+        photoLow: 300,
+        photoHigh: 330,
+        exchange: 360
+      },
+      {
+        ageBand: ">120 h",
+        repeat: 275,
+        photoLow: 320,
+        photoHigh: 350,
+        exchange: 380
+      }
+    ],
 
-        if (sampleAMPM === "PM" && sampleHour !== 12) sampleHour += 12;
-        if (sampleAMPM === "AM" && sampleHour === 12) sampleHour = 0;
-        sampleDate.setHours(sampleHour, sampleMinute, 0, 0);
+    "1.5-2.5": [
+      {
+        ageBand: "<36 h",
+        repeat: 130,
+        photoLow: 150,
+        photoHigh: 240,
+        exchange: 290
+      },
+      {
+        ageBand: "36–72 h",
+        repeat: 180,
+        photoLow: 200,
+        photoHigh: 250,
+        exchange: 290
+      },
+      {
+        ageBand: "72–120 h",
+        repeat: 210,
+        photoLow: 250,
+        photoHigh: 280,
+        exchange: 305
+      },
+      {
+        ageBand: ">120 h",
+        repeat: 235,
+        photoLow: 270,
+        photoHigh: 300,
+        exchange: 320
+      }
+    ],
 
-        const ageInMilliseconds = sampleDate - dobDate;
-        const ageInHours = Math.floor(ageInMilliseconds / (1000 * 60 * 60));
-        const ageInMinutes = Math.floor((ageInMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
+    "1.0-1.5": [
+      {
+        ageBand: "<36 h",
+        repeat: 105,
+        photoLow: 125,
+        photoHigh: 200,
+        exchange: 240
+      },
+      {
+        ageBand: "36–72 h",
+        repeat: 150,
+        photoLow: 170,
+        photoHigh: 220,
+        exchange: 240
+      },
+      {
+        ageBand: "72–120 h",
+        repeat: 175,
+        photoLow: 210,
+        photoHigh: 230,
+        exchange: 250
+      },
+      {
+        ageBand: ">120 h",
+        repeat: 185,
+        photoLow: 225,
+        photoHigh: 250,
+        exchange: 265
+      }
+    ],
 
-        document.getElementById("ageResult").style.display = "block";
-        document.getElementById("ageDisplay").textContent = `${ageInHours} hours and ${ageInMinutes} minutes`;
+    "<1.0": [
+      {
+        ageBand: "<36 h",
+        repeat: 90,
+        photoLow: 110,
+        photoHigh: 170,
+        exchange: 200
+      },
+      {
+        ageBand: "36–72 h",
+        repeat: 125,
+        photoLow: 145,
+        photoHigh: 180,
+        exchange: 200
+      },
+      {
+        ageBand: "72–120 h",
+        repeat: 150,
+        photoLow: 180,
+        photoHigh: 200,
+        exchange: 215
+      },
+      {
+        ageBand: ">120 h",
+        repeat: 165,
+        photoLow: 190,
+        photoHigh: 210,
+        exchange: 225
+      }
+    ]
+  };
 
-        let phototherapyRange = null;
-        let exchangeThresholdLower = null;
-        let exchangeThresholdUpper = null;
-        let repeatSerumBilirubinThreshold = null;
+  const birthweightLabels = {
+    ">2.5": "> 2.5 kg",
+    "1.5-2.5": "1.5–2.5 kg",
+    "1.0-1.5": "1.0–1.5 kg",
+    "<1.0": "< 1.0 kg"
+  };
 
-        // Assign ranges based on birthweight and age
-        if (birthweight === ">2.5") {
-            if (ageInHours < 36) {
-                phototherapyRange = [170, 255];
-                exchangeThresholdLower = 340;
-                exchangeThresholdUpper = 425;
-                repeatSerumBilirubinThreshold = 150;
-            } else if (ageInHours <= 72) {
-                phototherapyRange = [205, 270];
-                exchangeThresholdLower = 340;
-                exchangeThresholdUpper = 425;
-                repeatSerumBilirubinThreshold = 205;
-            } else if (ageInHours <= 120) {
-                phototherapyRange = [270, 305];
-                exchangeThresholdLower = 340;
-                exchangeThresholdUpper = 425;
-                repeatSerumBilirubinThreshold = 270;
-            } else {
-                phototherapyRange = [305, 340];
-                exchangeThresholdLower = 375;
-                exchangeThresholdUpper = 460;
-                repeatSerumBilirubinThreshold = 270;
-            }
-        } else if (birthweight === "1.5-2.5") {
-            if (ageInHours < 36) {
-                phototherapyRange = [155, 240];
-                exchangeThresholdLower = 255;
-                exchangeThresholdUpper = 340;
-                repeatSerumBilirubinThreshold = 135;
-            } else if (ageInHours <= 96) {
-                phototherapyRange = [205, 255];
-                exchangeThresholdLower = 255;
-                exchangeThresholdUpper = 340;
-                repeatSerumBilirubinThreshold = 170;
-            } else {
-                phototherapyRange = [220, 270];
-                exchangeThresholdLower = 290;
-                exchangeThresholdUpper = 375;
-                repeatSerumBilirubinThreshold = 205;
-            }
-        } else if (birthweight === "1.0-1.5") {
-            if (ageInHours < 36) {
-                phototherapyRange = [120, 205];
-                exchangeThresholdLower = 240;
-                exchangeThresholdUpper = 305;
-                repeatSerumBilirubinThreshold = 100;
-            } else if (ageInHours <= 96) {
-                phototherapyRange = [205, 240];
-                exchangeThresholdLower = 255;
-                exchangeThresholdUpper = 325;
-                repeatSerumBilirubinThreshold = 170;
-            } else {
-                phototherapyRange = [205, 255];
-                exchangeThresholdLower = 255;
-                exchangeThresholdUpper = 325;
-                repeatSerumBilirubinThreshold = 205;
-            }
-        } else if (birthweight === "<1.0") {
-            if (ageInHours < 36) {
-                phototherapyRange = [100, 170];
-                exchangeThresholdLower = 205;
-                exchangeThresholdUpper = 240;
-                repeatSerumBilirubinThreshold = 100;
-            } else if (ageInHours <= 96) {
-                phototherapyRange = [135, 170];
-                exchangeThresholdLower = 205;
-                exchangeThresholdUpper = 240;
-                repeatSerumBilirubinThreshold = 135;
-            } else {
-                phototherapyRange = [155, 190];
-                exchangeThresholdLower = 215;
-                exchangeThresholdUpper = 250;
-                repeatSerumBilirubinThreshold = 155;
-            }
-        }
+  function getAgeBandRow(birthweight, ageHoursExact) {
+    const rows = jaundiceTable[birthweight];
 
-        const resultDiv = document.getElementById("result");
-        resultDiv.style.display = "block";
+    if (!rows) return null;
 
-        // Calculate result
-        if (bilirubin > exchangeThresholdUpper) {
-            resultDiv.className = "result alert";
-            resultDiv.innerHTML = `<strong>Critical Alert:</strong> Bilirubin (${bilirubin} mmol/L) exceeds the upper limit for exchange transfusion (${exchangeThresholdUpper} mmol/L). Immediate intervention required!`;
-        } else if (bilirubin >= exchangeThresholdLower && bilirubin <= exchangeThresholdUpper) {
-            resultDiv.className = "result alert";
-            resultDiv.innerHTML = `<strong>Exchange Transfusion:</strong> Bilirubin (${bilirubin} mmol/L) is within the exchange transfusion range. Immediate intervention needed.`;
-        } else if (bilirubin >= phototherapyRange[0] && bilirubin < exchangeThresholdLower) {
-    // Use the full phototherapy band from lower bound up to (but not including) the exchange threshold.
-    const photoUpperEffective = exchangeThresholdLower; // exclusive upper
-    const midPoint = (phototherapyRange[0] + photoUpperEffective) / 2;
+    if (ageHoursExact < 36) return rows[0];
+    if (ageHoursExact <= 72) return rows[1];
+    if (ageHoursExact <= 120) return rows[2];
 
-    const isLowerBand = bilirubin < midPoint;
-    const phototherapyType = isLowerBand ? "Single Phototherapy" : "Double Phototherapy";
+    return rows[3];
+  }
 
-    // IVF maintenance prompt:
-    // - Lower phototherapy band  -> 30% of required IVF maintenance
-    // - Upper phototherapy band  -> 60% of required IVF maintenance
-    const ivfPercent = isLowerBand ? 30 : 60;
+  function parseDateTime(dateId, hourId, minuteId, ampmId, label) {
+    const dateValue = document.getElementById(dateId).value;
+    const hourValue = Number(document.getElementById(hourId).value);
+    const minuteValue = Number(document.getElementById(minuteId).value);
+    const ampmValue = document.getElementById(ampmId).value;
 
-    resultDiv.className = "result alert";
-    resultDiv.innerHTML =
-      `<strong>Phototherapy:</strong> Bilirubin (${bilirubin} mmol/L) is in phototherapy range. ` +
-      `Recommended action: ${phototherapyType}.<br>` +
-      `<em>IVF Guidance:</em> Administer ${ivfPercent}% of the required maintenance fluids.`;
-        } else if (bilirubin >= repeatSerumBilirubinThreshold && bilirubin < phototherapyRange[0]) {
-            resultDiv.className = "result warning";
-            resultDiv.innerHTML = `<strong>Repeat Serum Bilirubin:</strong> Bilirubin (${bilirubin} mmol/L) is within the repeat serum bilirubin range. Please repeat serum bilirubin measurement.`;
-        } else if (bilirubin < repeatSerumBilirubinThreshold) {
-            resultDiv.className = "result success";
-            resultDiv.innerHTML = `<strong>Normal:</strong> Bilirubin is below repeat serum bilirubin threshold. No treatment needed.`;
-        } else {
-            resultDiv.className = "result success";
-            resultDiv.innerHTML = `<strong>Normal:</strong> Bilirubin is within safe limits. No treatment required.`;
-        }
+    if (!dateValue) {
+      throw new Error(`Please enter the ${label} date.`);
+    }
 
-        // Display reference sheet
-        const referenceSheetDiv = document.getElementById("referenceSheet");
-        referenceSheetDiv.style.display = "block";
-        referenceSheetDiv.innerHTML = `
-            <h3>Reference Sheet</h3>
-            <table>
-                <tr>
-                    <th>Repeat Serum Bilirubin</th>
-                    <th>Phototherapy Range</th>
-                    <th>Exchange Transfusion Range</th>
-                </tr>
-                <tr>
-                    <td>${repeatSerumBilirubinThreshold} mmol/L</td>
-                    <td>${phototherapyRange[0]} - &lt; ${exchangeThresholdLower} mmol/L</td>
-                    <td>${exchangeThresholdLower} - ${exchangeThresholdUpper} mmol/L</td>
-                </tr>
-            </table>
-        `;
+    if (
+      !Number.isInteger(hourValue) ||
+      hourValue < 1 ||
+      hourValue > 12
+    ) {
+      throw new Error(`Please enter a valid hour for ${label}.`);
+    }
+
+    if (
+      !Number.isInteger(minuteValue) ||
+      minuteValue < 0 ||
+      minuteValue > 59
+    ) {
+      throw new Error(`Please enter valid minutes for ${label}.`);
+    }
+
+    let hour24 = hourValue;
+
+    if (ampmValue === "PM" && hour24 !== 12) {
+      hour24 += 12;
+    }
+
+    if (ampmValue === "AM" && hour24 === 12) {
+      hour24 = 0;
+    }
+
+    const [year, month, day] = dateValue.split("-").map(Number);
+
+    return new Date(year, month - 1, day, hour24, minuteValue, 0, 0);
+  }
+
+  function formatNumber(value) {
+    return Number(value).toLocaleString("en-US", {
+      maximumFractionDigits: 2
     });
+  }
 
-    document.getElementById("recalculate-btn").addEventListener("click", function () {
-        document.getElementById("jaundice-form").reset();
-        document.getElementById("result").style.display = "none";
-        document.getElementById("ageResult").style.display = "none";
-        document.getElementById("referenceSheet").style.display = "none";
-        document.getElementById("recalculate-btn").style.display = "none";
-    });
+  function showResult(className, html) {
+    resultDiv.className = `result ${className}`;
+    resultDiv.innerHTML = html;
+    resultDiv.style.display = "block";
+  }
+
+  function displayReferenceSheet(birthweight, row) {
+    referenceSheetDiv.style.display = "block";
+
+    referenceSheetDiv.innerHTML = `
+      <h3>Reference Sheet</h3>
+
+      <table>
+        <tr>
+          <th>Birthweight</th>
+          <th>Age Band</th>
+          <th>Repeat Serum BR</th>
+          <th>Phototherapy</th>
+          <th>Exchange Transfusion</th>
+        </tr>
+
+        <tr>
+          <td>${birthweightLabels[birthweight]}</td>
+          <td>${row.ageBand}</td>
+          <td>
+            ${row.repeat} ${UNIT}
+            <br>
+            <small>Repeat in 6–8 hours</small>
+          </td>
+          <td>${row.photoLow}–${row.photoHigh} ${UNIT}</td>
+          <td>≥ ${row.exchange} ${UNIT}</td>
+        </tr>
+      </table>
+    `;
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const birthweight = document.getElementById("birthweight").value;
+    const bilirubin = Number(document.getElementById("bilirubin").value);
+
+    if (!birthweight) {
+      alert("Please select the birthweight.");
+      return;
+    }
+
+    if (!Number.isFinite(bilirubin) || bilirubin < 0) {
+      alert("Please enter a valid bilirubin level.");
+      return;
+    }
+
+    let dobDate;
+    let sampleDate;
+
+    try {
+      dobDate = parseDateTime(
+        "dobDate",
+        "dobHour",
+        "dobMinute",
+        "dobAMPM",
+        "date and time of birth"
+      );
+
+      sampleDate = parseDateTime(
+        "sampleDate",
+        "sampleHour",
+        "sampleMinute",
+        "sampleAMPM",
+        "date and time of bilirubin sample"
+      );
+    } catch (error) {
+      alert(error.message);
+      return;
+    }
+
+    const ageInMilliseconds = sampleDate - dobDate;
+
+    if (ageInMilliseconds < 0) {
+      alert("The bilirubin sample time cannot be before the time of birth.");
+      return;
+    }
+
+    const ageHoursExact = ageInMilliseconds / (1000 * 60 * 60);
+    const ageInHours = Math.floor(ageHoursExact);
+    const ageInMinutes = Math.floor(
+      (ageInMilliseconds % (1000 * 60 * 60)) / (1000 * 60)
+    );
+
+    const row = getAgeBandRow(birthweight, ageHoursExact);
+
+    if (!row) {
+      alert("Unable to determine the treatment threshold. Please check the values entered.");
+      return;
+    }
+
+    ageResultDiv.style.display = "block";
+    ageDisplayDiv.textContent = `${ageInHours} hours and ${ageInMinutes} minutes`;
+
+    const bilirubinDisplay = formatNumber(bilirubin);
+
+    /*
+      Interpretation logic:
+
+      1. Exchange threshold reached: urgent senior/neonatology review.
+      2. Above phototherapy band but below exchange: treat as high-risk/intensive phototherapy zone.
+      3. Within phototherapy range: single vs double phototherapy based on lower/upper half of range.
+      4. Repeat range: repeat bilirubin in 6–8 hours.
+      5. Below action threshold: continue clinical assessment.
+    */
+
+    if (bilirubin >= row.exchange) {
+      showResult(
+        "alert",
+        `
+          <strong>Exchange Transfusion Threshold Reached</strong>
+          <br><br>
+          Bilirubin is <strong>${bilirubinDisplay} ${UNIT}</strong>.
+          This is at or above the exchange transfusion threshold of
+          <strong>${row.exchange} ${UNIT}</strong> for this birthweight and age band.
+          <br><br>
+          <strong>Recommended action:</strong>
+          Urgent senior/neonatology review. Commence intensive phototherapy while preparing for possible exchange transfusion.
+        `
+      );
+    } else if (bilirubin > row.photoHigh) {
+      showResult(
+        "alert",
+        `
+          <strong>Above Phototherapy Band but Below Exchange Threshold</strong>
+          <br><br>
+          Bilirubin is <strong>${bilirubinDisplay} ${UNIT}</strong>.
+          This is above the listed phototherapy band of
+          <strong>${row.photoLow}–${row.photoHigh} ${UNIT}</strong>,
+          but below the exchange transfusion threshold of
+          <strong>${row.exchange} ${UNIT}</strong>.
+          <br><br>
+          <strong>Recommended action:</strong>
+          Double/intensive phototherapy, urgent senior review, and close repeat bilirubin monitoring.
+          <br><br>
+          <em>IVF Guidance:</em>
+          Consider 60% of required maintenance fluids if clinically appropriate and in keeping with local protocol.
+        `
+      );
+    } else if (bilirubin >= row.photoLow) {
+      const midpoint = (row.photoLow + row.photoHigh) / 2;
+      const isLowerPhototherapyBand = bilirubin < midpoint;
+
+      const phototherapyType = isLowerPhototherapyBand
+        ? "Single Phototherapy"
+        : "Double Phototherapy";
+
+      const ivfPercent = isLowerPhototherapyBand ? 30 : 60;
+
+      showResult(
+        "alert",
+        `
+          <strong>Phototherapy Indicated</strong>
+          <br><br>
+          Bilirubin is <strong>${bilirubinDisplay} ${UNIT}</strong>,
+          within the phototherapy range of
+          <strong>${row.photoLow}–${row.photoHigh} ${UNIT}</strong>.
+          <br><br>
+          <strong>Recommended action:</strong>
+          ${phototherapyType}.
+          <br><br>
+          <em>IVF Guidance:</em>
+          Consider ${ivfPercent}% of required maintenance fluids if clinically appropriate and in keeping with local protocol.
+        `
+      );
+    } else if (bilirubin >= row.repeat) {
+      showResult(
+        "warning",
+        `
+          <strong>Repeat Serum Bilirubin</strong>
+          <br><br>
+          Bilirubin is <strong>${bilirubinDisplay} ${UNIT}</strong>.
+          This is at or above the repeat serum bilirubin threshold of
+          <strong>${row.repeat} ${UNIT}</strong>,
+          but below the phototherapy threshold.
+          <br><br>
+          <strong>Recommended action:</strong>
+          Repeat serum bilirubin in 6–8 hours.
+        `
+      );
+    } else {
+      showResult(
+        "success",
+        `
+          <strong>Below Action Threshold on This Chart</strong>
+          <br><br>
+          Bilirubin is <strong>${bilirubinDisplay} ${UNIT}</strong>,
+          which is below the repeat serum bilirubin threshold of
+          <strong>${row.repeat} ${UNIT}</strong>
+          for this birthweight and age band.
+          <br><br>
+          Continue clinical assessment, feeding support, and routine monitoring as appropriate.
+        `
+      );
+    }
+
+    displayReferenceSheet(birthweight, row);
+
+    recalculateBtn.style.display = "block";
+  });
+
+  recalculateBtn.addEventListener("click", function () {
+    form.reset();
+
+    resultDiv.style.display = "none";
+    ageResultDiv.style.display = "none";
+    referenceSheetDiv.style.display = "none";
+    recalculateBtn.style.display = "none";
+
+    resultDiv.innerHTML = "";
+    ageDisplayDiv.textContent = "";
+    referenceSheetDiv.innerHTML = "";
+  });
 });
 
 
